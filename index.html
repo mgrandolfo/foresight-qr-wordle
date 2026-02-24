@@ -1,339 +1,251 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Foresight — Guess the Word</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Foresight — Guess the word</title>
 
-  <style>
-    :root{
-      /* light lilac background */
-      --bg: #f2eef9;
+<style>
+:root{
+  --bg: #f2eef9;
 
-      --text: #0f172a;
-      --muted: #475569;
+  --text: #0f172a;
+  --muted: #475569;
 
-      /* brand colors */
-      --brand-violet: #8f68aa;
-      --brand-pink: #be81ad;
-      --brand-mint: #a5dc92;
-      --brand-peach:#d3af95;
+  /* brand */
+  --violet: #8f68aa;
+  --pink: #be81ad;
+  --mint: #a5dc92;
+  --peach: #f2c38b;   /* 🔥 giallo pesca */
 
-      --cell: 52px;
-      --gap: 8px;
-      --radius: 14px;
-    }
+  --gray-light: #cbd5e1;
+  --gray-dark: #475569;
 
-    *{ box-sizing: border-box; }
+  --cell: 52px;
+  --gap: 8px;
+  --radius: 14px;
+}
 
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(900px 500px at 0% 0%, rgba(190,129,173,.35), transparent 60%),
-        radial-gradient(800px 500px at 100% 20%, rgba(165,220,146,.25), transparent 60%),
-        radial-gradient(900px 600px at 50% 100%, rgba(143,104,170,.30), transparent 60%),
-        var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+*{box-sizing:border-box}
 
-    .wrap{
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 20px 14px 36px;
-    }
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:
+    radial-gradient(900px 500px at 0% 0%, rgba(190,129,173,.35), transparent 60%),
+    radial-gradient(800px 500px at 100% 20%, rgba(165,220,146,.25), transparent 60%),
+    radial-gradient(900px 600px at 50% 100%, rgba(143,104,170,.30), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  min-height:100vh;
+}
 
-    .card{
-      background: rgba(255,255,255,.6);
-      backdrop-filter: blur(10px);
-      border-radius: 22px;
-      padding: 20px 16px 22px;
-      box-shadow: 0 20px 40px rgba(0,0,0,.15);
-    }
+.wrap{max-width:720px;margin:auto;padding:20px 14px 36px}
 
-    .brand{
-      display:flex;
-      justify-content:center;
-      margin-bottom: 10px;
-    }
-    .brand img{
-      max-height: 56px;
-      width: auto;
-    }
+.card{
+  background: rgba(255,255,255,.6);
+  backdrop-filter: blur(10px);
+  border-radius:22px;
+  padding:20px 16px 22px;
+  box-shadow:0 20px 40px rgba(0,0,0,.15);
+}
 
-    h1{
-      text-align:center;
-      margin: 8px 0 18px;
-      font-size: 20px;
-      letter-spacing: .04em;
-    }
+.brand{display:flex;justify-content:center;margin-bottom:10px}
+.brand img{max-height:56px}
 
-    /* board */
-    .board{ display:grid; gap: var(--gap); }
-    .row{
-      display:grid;
-      grid-template-columns: repeat(6, var(--cell));
-      gap: var(--gap);
-      justify-content:center;
-    }
-    .cell{
-      width: var(--cell);
-      height: var(--cell);
-      border-radius: var(--radius);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight: 900;
-      font-size: 22px;
-      text-transform: uppercase;
-      background: rgba(255,255,255,.65);
-      border: 2px solid rgba(143,104,170,.25);
-    }
+h1{text-align:center;margin:8px 0 18px;font-size:20px;letter-spacing:.04em}
 
-    .cell.reveal{ transition: transform .12s ease; }
-    .cell.reveal.pop{ transform: scale(1.05); }
+/* board */
+.board{display:grid;gap:var(--gap)}
+.row{display:grid;grid-template-columns:repeat(6,var(--cell));gap:var(--gap);justify-content:center}
+.cell{
+  width:var(--cell);height:var(--cell);
+  border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:22px;text-transform:uppercase;
+  background:white;border:2px solid rgba(143,104,170,.25);
+}
+.cell.reveal{transition:transform .12s ease}
+.cell.reveal.pop{transform:scale(1.05)}
+.cell.correct{background:var(--mint);border-color:var(--mint)}
+.cell.present{background:var(--peach);border-color:var(--peach)}
+.cell.absent{background:var(--gray-light);border-color:var(--gray-light)}
 
-    .cell.correct{
-      background: var(--brand-mint);
-      border-color: var(--brand-mint);
-    }
-    .cell.present{
-      background: var(--brand-pink);
-      border-color: var(--brand-pink);
-    }
-    .cell.absent{
-      background: #cbd5e1;
-      border-color: #cbd5e1;
-    }
+/* input */
+.bar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+input{
+  width:240px;height:44px;border-radius:16px;
+  border:2px solid rgba(143,104,170,.35);
+  padding:0 12px;font-size:16px;text-transform:uppercase;
+}
+input:focus{outline:none;border-color:var(--mint);box-shadow:0 0 0 4px rgba(165,220,146,.25)}
 
-    /* input */
-    .bar{
-      display:flex;
-      gap:10px;
-      justify-content:center;
-      margin-top: 14px;
-      flex-wrap: wrap;
-    }
-    input{
-      width: 240px;
-      height: 44px;
-      border-radius: 16px;
-      border: 2px solid rgba(143,104,170,.35);
-      background: white;
-      padding: 0 12px;
-      font-size: 16px;
-      text-transform: uppercase;
-      outline:none;
-    }
-    input:focus{
-      border-color: var(--brand-mint);
-      box-shadow: 0 0 0 4px rgba(165,220,146,.25);
-    }
+button{
+  height:44px;padding:0 16px;border-radius:16px;
+  border:none;font-weight:800;cursor:pointer;
+}
+#send{background:linear-gradient(90deg,var(--violet),var(--pink));color:white}
+#reset{background:#e5e7eb;color:#334155}
 
-    button{
-      height: 44px;
-      padding: 0 16px;
-      border-radius: 16px;
-      border: none;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    #send{
-      background: linear-gradient(90deg,var(--brand-violet),var(--brand-pink));
-      color:#fff;
-    }
-    #reset{
-      background: #e5e7eb;
-      color:#334155;
-    }
+.msg{text-align:center;margin-top:12px;min-height:22px;font-weight:600}
 
-    .msg{
-      text-align:center;
-      margin-top: 12px;
-      min-height: 22px;
-      color: var(--muted);
-      font-weight: 600;
-    }
+.winBox{
+  display:none;margin-top:16px;padding:16px;border-radius:18px;
+  background:rgba(255,255,255,.75);text-align:center;
+}
+.winBox a{
+  display:inline-block;margin-top:10px;padding:10px 16px;
+  border-radius:16px;font-weight:900;text-decoration:none;
+  background:linear-gradient(90deg,var(--mint),#ffd8a8);
+  color:#0f172a;
+}
 
-    .winBox{
-      display:none;
-      margin-top: 16px;
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.75);
-      text-align:center;
-    }
-    .winBox a{
-      display:inline-block;
-      margin-top: 10px;
-      padding: 10px 16px;
-      border-radius: 16px;
-      font-weight: 900;
-      text-decoration:none;
-      color:#0f172a;
-      background: linear-gradient(90deg,var(--brand-mint),var(--brand-peach));
-    }
-
-    /* keyboard */
-    .kbd{ margin-top: 16px; display:grid; gap:8px; }
-    .kbdRow{ display:flex; gap:6px; justify-content:center; }
-    .key{
-      flex:1;
-      height: 44px;
-      border-radius: 14px;
-      border:none;
-      background:#e5e7eb;
-      font-weight: 800;
-      cursor:pointer;
-    }
-    .key.wide{ flex:1.4; }
-
-    .key.correct{ background: var(--brand-mint); }
-    .key.present{ background: var(--brand-pink); }
-    .key.absent{ background: #cbd5e1; }
-  </style>
+/* keyboard */
+.kbd{margin-top:16px;display:grid;gap:8px}
+.kbdRow{display:flex;gap:6px;justify-content:center}
+.key{
+  flex:1;height:44px;border-radius:14px;border:none;
+  background:#e5e7eb;font-weight:800;cursor:pointer;
+}
+.key.wide{flex:1.4}
+.key.correct{background:var(--mint)}
+.key.present{background:var(--peach)}
+.key.absent{background:var(--gray-dark);color:white}
+</style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="card">
-      <div class="brand">
-        <img src="foresight_color-01.png" alt="Foresight">
-      </div>
+<div class="wrap">
+<div class="card">
 
-      <h1>Guess the word</h1>
+<div class="brand">
+  <img src="foresight_color-01.png" alt="Foresight">
+</div>
 
-      <div id="board" class="board"></div>
+<h1>Guess the word</h1>
 
-      <div class="bar">
-        <input id="guess" type="text" maxlength="6" autocomplete="off" />
-        <button id="send">Submit</button>
-        <button id="reset">Reset</button>
-      </div>
+<div id="board" class="board"></div>
 
-      <div id="msg" class="msg"></div>
+<div class="bar">
+  <input id="guess" maxlength="6" autocomplete="off">
+  <button id="send">Submit</button>
+  <button id="reset">Reset</button>
+</div>
 
-      <div id="winBox" class="winBox">
-        <div><strong>Congrats! Visit our website:</strong></div>
-        <a id="unlockLink" href="#" target="_blank">Open website</a>
-      </div>
+<div id="msg" class="msg"></div>
 
-      <div id="kbd" class="kbd"></div>
-    </div>
-  </div>
+<div id="winBox" class="winBox">
+  <strong>Congrats! Visit our website:</strong><br>
+  <a id="unlockLink" href="#" target="_blank">Open website</a>
+</div>
 
-  <script>
-    const SECRET_WORD = "IMPACT";
-    const UNLOCK_URL  = "https://foresightst.com/";
-    const MAX_TRIES = 6;
-    const WORD_LEN = 6;
+<div id="kbd" class="kbd"></div>
 
-    const KBD_ROWS = [
-      ["Q","W","E","R","T","Y","U","I","O","P"],
-      ["A","S","D","F","G","H","J","K","L"],
-      ["GO","Z","X","C","V","B","N","M","⌫"]
-    ];
+</div>
+</div>
 
-    let tries = [];
-    let finished = false;
-    const keyState = new Map();
+<script>
+const SECRET_WORD="IMPACT";
+const UNLOCK_URL="https://foresightst.com/";
+const MAX_TRIES=6, WORD_LEN=6;
 
-    const board = document.getElementById("board");
-    const input = document.getElementById("guess");
-    const msg = document.getElementById("msg");
-    const winBox = document.getElementById("winBox");
-    document.getElementById("unlockLink").href = UNLOCK_URL;
+const KBD=[
+["Q","W","E","R","T","Y","U","I","O","P"],
+["A","S","D","F","G","H","J","K","L"],
+["GO","Z","X","C","V","B","N","M","⌫"]
+];
 
-    function buildBoard(){
-      board.innerHTML = "";
-      for(let r=0;r<MAX_TRIES;r++){
-        const row=document.createElement("div");
-        row.className="row";
-        for(let c=0;c<WORD_LEN;c++){
-          const cell=document.createElement("div");
-          cell.className="cell";
-          cell.dataset.r=r;
-          cell.dataset.c=c;
-          row.appendChild(cell);
-        }
-        board.appendChild(row);
-      }
+let tries=[], finished=false;
+const keyState={};
+
+const board=document.getElementById("board");
+const input=document.getElementById("guess");
+const msg=document.getElementById("msg");
+const winBox=document.getElementById("winBox");
+document.getElementById("unlockLink").href=UNLOCK_URL;
+
+function buildBoard(){
+  board.innerHTML="";
+  for(let r=0;r<MAX_TRIES;r++){
+    const row=document.createElement("div");row.className="row";
+    for(let c=0;c<WORD_LEN;c++){
+      const cell=document.createElement("div");
+      cell.className="cell";cell.dataset.r=r;cell.dataset.c=c;
+      row.appendChild(cell);
     }
+    board.appendChild(row);
+  }
+}
 
-    function evaluate(guess){
-      const res = Array(WORD_LEN).fill("absent");
-      const s = SECRET_WORD.split("");
-      const g = guess.split("");
-
-      for(let i=0;i<WORD_LEN;i++){
-        if(g[i]===s[i]){
-          res[i]="correct"; s[i]=null; g[i]=null;
-        }
-      }
-      for(let i=0;i<WORD_LEN;i++){
-        if(g[i] && s.includes(g[i])){
-          res[i]="present";
-          s[s.indexOf(g[i])]=null;
-        }
-      }
-      return res;
+function evaluate(g){
+  const res=Array(WORD_LEN).fill("absent");
+  const s=SECRET_WORD.split(""), a=g.split("");
+  for(let i=0;i<WORD_LEN;i++){
+    if(a[i]===s[i]){res[i]="correct";s[i]=a[i]=null}
+  }
+  for(let i=0;i<WORD_LEN;i++){
+    if(a[i] && s.includes(a[i])){
+      res[i]="present";s[s.indexOf(a[i])]=null;
     }
+  }
+  return res;
+}
 
-    function paintRow(r,guess,res){
-      for(let i=0;i<WORD_LEN;i++){
-        const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${i}"]`);
-        cell.textContent = guess[i];
-        cell.classList.add("reveal","pop",res[i]);
-        setTimeout(()=>cell.classList.remove("pop"),150);
-      }
+function paintRow(r,g,res){
+  for(let i=0;i<WORD_LEN;i++){
+    const c=document.querySelector(`.cell[data-r="${r}"][data-c="${i}"]`);
+    c.textContent=g[i];
+    c.classList.add("reveal","pop",res[i]);
+    setTimeout(()=>c.classList.remove("pop"),150);
+  }
+}
+
+function updateKeyboard(g,res){
+  res.forEach((s,i)=>{
+    const k=g[i];
+    if(!keyState[k] || keyState[k]==="present" && s==="correct" || keyState[k]==="absent"){
+      keyState[k]=s;
     }
+  });
+  document.querySelectorAll(".key").forEach(b=>{
+    const k=b.textContent;
+    b.classList.remove("correct","present","absent");
+    if(keyState[k]) b.classList.add(keyState[k]);
+  });
+}
 
-    function submit(){
-      if(finished) return;
-      const guess = input.value.toUpperCase();
-      if(guess.length!==WORD_LEN) return;
+function submit(){
+  if(finished) return;
+  const g=input.value.toUpperCase();
+  if(g.length!==WORD_LEN) return;
+  const r=tries.length,res=evaluate(g);
+  paintRow(r,g,res);updateKeyboard(g,res);
+  tries.push(g);input.value="";
+  if(g===SECRET_WORD){finished=true;winBox.style.display="block"}
+  else if(tries.length>=MAX_TRIES){finished=true;msg.textContent="You lost :( The word was... Impact!"}
+}
 
-      const r = tries.length;
-      const res = evaluate(guess);
-      paintRow(r,guess,res);
-      tries.push(guess);
-      input.value="";
+document.getElementById("send").onclick=submit;
+document.getElementById("reset").onclick=()=>location.reload();
 
-      if(guess===SECRET_WORD){
-        finished=true;
-        winBox.style.display="block";
-      } else if(tries.length>=MAX_TRIES){
-        finished=true;
-        msg.textContent="You lost :( The word was... Impact!";
-      }
-    }
+const kbd=document.getElementById("kbd");
+KBD.forEach(row=>{
+  const r=document.createElement("div");r.className="kbdRow";
+  row.forEach(k=>{
+    const b=document.createElement("button");
+    b.className="key"+((k==="GO"||k==="⌫")?" wide":"");
+    b.textContent=k;
+    b.onclick=()=>{
+      if(k==="GO") submit();
+      else if(k==="⌫") input.value=input.value.slice(0,-1);
+      else if(input.value.length<WORD_LEN) input.value+=k;
+    };
+    r.appendChild(b);
+  });
+  kbd.appendChild(r);
+});
 
-    document.getElementById("send").onclick=submit;
-    document.getElementById("reset").onclick=()=>location.reload();
-
-    function buildKeyboard(){
-      const k=document.getElementById("kbd");
-      KBD_ROWS.forEach(row=>{
-        const r=document.createElement("div");
-        r.className="kbdRow";
-        row.forEach(key=>{
-          const b=document.createElement("button");
-          b.className="key"+((key==="GO"||key==="⌫")?" wide":"");
-          b.textContent=key;
-          b.onclick=()=>{
-            if(key==="GO") submit();
-            else if(key==="⌫") input.value=input.value.slice(0,-1);
-            else if(input.value.length<WORD_LEN) input.value+=key;
-          };
-          r.appendChild(b);
-        });
-        k.appendChild(r);
-      });
-    }
-
-    buildBoard();
-    buildKeyboard();
-  </script>
+buildBoard();
+</script>
 </body>
 </html>
