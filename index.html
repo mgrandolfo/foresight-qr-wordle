@@ -102,7 +102,7 @@ button{
 .key.present{background:var(--peach)}
 .key.absent{background:var(--gray-dark);color:white}
 
-/* modal base */
+/* modal */
 .modalOverlay{
   position:fixed; inset:0;
   display:none;
@@ -178,20 +178,58 @@ button{
 
     <div class="bar">
       <input id="guess" maxlength="6" autocomplete="off" />
-      <button id="send">Submit</button>
-      <button id="reset">Reset</button>
+      <button id="send" type="button">Submit</button>
+      <button id="reset" type="button">Reset</button>
     </div>
 
     <div id="msg" class="msg"></div>
 
-    <div id="kbd" class="kbd"></div>
+    <!-- ✅ Keyboard is now static HTML: it cannot disappear -->
+    <div id="kbd" class="kbd" aria-label="Keyboard">
+      <div class="kbdRow">
+        <button class="key" data-key="Q" type="button">Q</button>
+        <button class="key" data-key="W" type="button">W</button>
+        <button class="key" data-key="E" type="button">E</button>
+        <button class="key" data-key="R" type="button">R</button>
+        <button class="key" data-key="T" type="button">T</button>
+        <button class="key" data-key="Y" type="button">Y</button>
+        <button class="key" data-key="U" type="button">U</button>
+        <button class="key" data-key="I" type="button">I</button>
+        <button class="key" data-key="O" type="button">O</button>
+        <button class="key" data-key="P" type="button">P</button>
+      </div>
+
+      <div class="kbdRow">
+        <button class="key" data-key="A" type="button">A</button>
+        <button class="key" data-key="S" type="button">S</button>
+        <button class="key" data-key="D" type="button">D</button>
+        <button class="key" data-key="F" type="button">F</button>
+        <button class="key" data-key="G" type="button">G</button>
+        <button class="key" data-key="H" type="button">H</button>
+        <button class="key" data-key="J" type="button">J</button>
+        <button class="key" data-key="K" type="button">K</button>
+        <button class="key" data-key="L" type="button">L</button>
+      </div>
+
+      <div class="kbdRow">
+        <button class="key wide" data-key="GO" type="button">GO</button>
+        <button class="key" data-key="Z" type="button">Z</button>
+        <button class="key" data-key="X" type="button">X</button>
+        <button class="key" data-key="C" type="button">C</button>
+        <button class="key" data-key="V" type="button">V</button>
+        <button class="key" data-key="B" type="button">B</button>
+        <button class="key" data-key="N" type="button">N</button>
+        <button class="key" data-key="M" type="button">M</button>
+        <button class="key wide" data-key="BKSP" type="button">⌫</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- WIN Popup -->
 <div id="winOverlay" class="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="winTitle">
   <div class="modal">
-    <button class="modalClose" id="winClose" aria-label="Close">✕</button>
+    <button class="modalClose" id="winClose" aria-label="Close" type="button">✕</button>
     <div class="modalTitle" id="winTitle">Congrats! 🎉</div>
     <div class="modalSub">Visit our website:</div>
     <div class="modalActions">
@@ -200,10 +238,10 @@ button{
   </div>
 </div>
 
-<!-- LOSE Popup (ONLY title + button) -->
+<!-- LOSE Popup -->
 <div id="loseOverlay" class="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="loseTitle">
   <div class="modal">
-    <button class="modalClose" id="loseClose" aria-label="Close">✕</button>
+    <button class="modalClose" id="loseClose" aria-label="Close" type="button">✕</button>
     <div class="modalTitle" id="loseTitle">Almost 🙂</div>
     <div class="modalActions">
       <button id="tryAgainBtn" class="modalBtn" type="button">Try again</button>
@@ -212,54 +250,38 @@ button{
 </div>
 
 <script>
-/* === CONFIG === */
 const SECRET_WORD = "IMPACT";
 const UNLOCK_URL  = "https://foresightst.com/";
 const MAX_TRIES = 6, WORD_LEN = 6;
 
-const KBD_ROWS = [
-  ["Q","W","E","R","T","Y","U","I","O","P"],
-  ["A","S","D","F","G","H","J","K","L"],
-  ["GO","Z","X","C","V","B","N","M","⌫"]
-];
-
-/* === STATE === */
 let tries = [];
 let finished = false;
 const keyState = {}; // letter -> correct/present/absent
 
-/* === ELEMENTS === */
 const boardEl = document.getElementById("board");
 const inputEl = document.getElementById("guess");
 const msgEl = document.getElementById("msg");
 
 const winOverlay = document.getElementById("winOverlay");
-const winClose = document.getElementById("winClose");
 const loseOverlay = document.getElementById("loseOverlay");
-const loseClose = document.getElementById("loseClose");
-const tryAgainBtn = document.getElementById("tryAgainBtn");
 
-const unlockLink = document.getElementById("unlockLink");
-unlockLink.href = UNLOCK_URL;
+document.getElementById("unlockLink").href = UNLOCK_URL;
 
-/* === MODALS === */
 function openWin(){ winOverlay.style.display = "flex"; }
 function closeWin(){ winOverlay.style.display = "none"; }
-
 function openLose(){ loseOverlay.style.display = "flex"; }
 function closeLose(){ loseOverlay.style.display = "none"; }
 
-winClose.addEventListener("click", closeWin);
-winOverlay.addEventListener("click", (e)=>{ if(e.target === winOverlay) closeWin(); });
+document.getElementById("winClose").addEventListener("click", closeWin);
+winOverlay.addEventListener("click", (e)=>{ if(e.target===winOverlay) closeWin(); });
 
-loseClose.addEventListener("click", closeLose);
-loseOverlay.addEventListener("click", (e)=>{ if(e.target === loseOverlay) closeLose(); });
+document.getElementById("loseClose").addEventListener("click", closeLose);
+loseOverlay.addEventListener("click", (e)=>{ if(e.target===loseOverlay) closeLose(); });
 
 document.addEventListener("keydown", (e)=>{
   if(e.key === "Escape"){ closeWin(); closeLose(); }
 });
 
-/* === GAME HELPERS === */
 function sanitize(s){
   return (s || "").toUpperCase().replace(/[^A-Z]/g,"").slice(0, WORD_LEN);
 }
@@ -285,7 +307,6 @@ function evaluate(guess){
   const secretArr = SECRET_WORD.split("");
   const guessArr = guess.split("");
 
-  // greens
   for(let i=0;i<WORD_LEN;i++){
     if(guessArr[i] === secretArr[i]){
       res[i] = "correct";
@@ -293,7 +314,6 @@ function evaluate(guess){
       guessArr[i] = null;
     }
   }
-  // yellows
   for(let i=0;i<WORD_LEN;i++){
     if(guessArr[i] == null) continue;
     const idx = secretArr.indexOf(guessArr[i]);
@@ -328,8 +348,11 @@ function updateKeyboard(guess, evals){
     const prev = keyState[letter];
     if(rank(st) > rank(prev)) keyState[letter] = st;
   }
-  document.querySelectorAll(".key").forEach(btn=>{
+
+  document.querySelectorAll("#kbd .key").forEach(btn=>{
     const k = btn.dataset.key;
+    // only letters get colored
+    if(!/^[A-Z]$/.test(k)) return;
     btn.classList.remove("correct","present","absent");
     if(keyState[k]) btn.classList.add(keyState[k]);
   });
@@ -337,7 +360,7 @@ function updateKeyboard(guess, evals){
 
 function clearKeyboard(){
   for(const k in keyState) delete keyState[k];
-  document.querySelectorAll(".key").forEach(btn=>{
+  document.querySelectorAll("#kbd .key").forEach(btn=>{
     btn.classList.remove("correct","present","absent");
   });
 }
@@ -353,7 +376,6 @@ function resetGame(){
   inputEl.focus();
 }
 
-/* === SUBMIT === */
 function submit(){
   if(finished) return;
 
@@ -372,64 +394,49 @@ function submit(){
 
   if(guess === SECRET_WORD){
     finished = true;
-    msgEl.textContent = "";
     openWin();
   } else if(tries.length >= MAX_TRIES){
     finished = true;
-    msgEl.textContent = "";
     openLose();
   }
 }
 
-/* Buttons */
 document.getElementById("send").addEventListener("click", submit);
 document.getElementById("reset").addEventListener("click", resetGame);
-tryAgainBtn.addEventListener("click", resetGame);
+document.getElementById("tryAgainBtn").addEventListener("click", resetGame);
 
-/* On-screen keyboard */
-const kbdEl = document.getElementById("kbd");
+/* Keyboard clicks (event delegation) */
+document.getElementById("kbd").addEventListener("click", (e)=>{
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  if(finished) return;
 
-function buildKeyboard(){
-  kbdEl.innerHTML = "";
-  for(const rowKeys of KBD_ROWS){
-    const row = document.createElement("div");
-    row.className = "kbdRow";
+  const k = btn.dataset.key;
 
-    for(const k of rowKeys){
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "key" + ((k==="GO" || k==="⌫") ? " wide" : "");
-      b.textContent = k;
-      b.dataset.key = k;
-
-      b.addEventListener("click", ()=>{
-        if(finished) return;
-
-        if(k === "GO"){ submit(); return; }
-        if(k === "⌫"){
-          inputEl.value = inputEl.value.slice(0, -1);
-          inputEl.focus();
-          return;
-        }
-        const cur = sanitize(inputEl.value);
-        if(cur.length < WORD_LEN){
-          inputEl.value = cur + k;
-          inputEl.focus();
-        }
-      });
-
-      row.appendChild(b);
-    }
-    kbdEl.appendChild(row);
+  if(k === "GO"){ submit(); return; }
+  if(k === "BKSP"){
+    inputEl.value = inputEl.value.slice(0, -1);
+    inputEl.focus();
+    return;
   }
-}
+  if(/^[A-Z]$/.test(k)){
+    const cur = sanitize(inputEl.value);
+    if(cur.length < WORD_LEN){
+      inputEl.value = cur + k;
+      inputEl.focus();
+    }
+  }
+});
 
-/* Physical keyboard: Enter submits */
+/* Physical keyboard */
 document.addEventListener("keydown", (e)=>{
   if(finished) return;
 
   if(e.key === "Enter"){ submit(); return; }
-  if(e.key === "Backspace"){ inputEl.value = inputEl.value.slice(0,-1); return; }
+  if(e.key === "Backspace"){
+    inputEl.value = inputEl.value.slice(0, -1);
+    return;
+  }
 
   const ch = e.key.toUpperCase();
   if(/^[A-Z]$/.test(ch)){
@@ -440,7 +447,6 @@ document.addEventListener("keydown", (e)=>{
 
 /* init */
 buildBoard();
-buildKeyboard();
 inputEl.focus();
 </script>
 </body>
