@@ -2,48 +2,47 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Foresight — Guess the word</title>
 
 <style>
 :root{
-  --bg: #f2eef9;
+  --bg:#f2eef9;
+  --text:#0f172a;
+  --muted:#475569;
 
-  --text: #0f172a;
-  --muted: #475569;
+  --violet:#8f68aa;
+  --pink:#be81ad;
+  --mint:#a5dc92;
+  --peach:#f2c38b;
 
-  --violet: #8f68aa;
-  --pink: #be81ad;
-  --mint: #a5dc92;
-  --peach: #f2c38b;   /* present */
+  --gray-light:#cbd5e1;
+  --gray-dark:#475569;
 
-  --gray-light: #cbd5e1;
-  --gray-dark: #475569;
-
-  --cell: 52px;
-  --gap: 8px;
-  --radius: 14px;
+  --cell:52px;
+  --gap:8px;
+  --radius:14px;
 }
 
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   background:
     radial-gradient(900px 500px at 0% 0%, rgba(190,129,173,.35), transparent 60%),
     radial-gradient(800px 500px at 100% 20%, rgba(165,220,146,.25), transparent 60%),
     radial-gradient(900px 600px at 50% 100%, rgba(143,104,170,.30), transparent 60%),
     var(--bg);
-  color: var(--text);
+  color:var(--text);
   min-height:100vh;
 }
 
 .wrap{max-width:720px;margin:auto;padding:20px 14px 36px}
 
 .card{
-  background: rgba(255,255,255,.6);
-  backdrop-filter: blur(10px);
+  background:rgba(255,255,255,.6);
+  backdrop-filter:blur(10px);
   border-radius:22px;
   padding:20px 16px 22px;
   box-shadow:0 20px 40px rgba(0,0,0,.15);
@@ -64,8 +63,6 @@ h1{text-align:center;margin:8px 0 18px;font-size:20px;letter-spacing:.04em}
   font-weight:900;font-size:22px;text-transform:uppercase;
   background:white;border:2px solid rgba(143,104,170,.25);
 }
-.cell.reveal{transition:transform .12s ease}
-.cell.reveal.pop{transform:scale(1.05)}
 .cell.correct{background:var(--mint);border-color:var(--mint)}
 .cell.present{background:var(--peach);border-color:var(--peach)}
 .cell.absent{background:var(--gray-light);border-color:var(--gray-light)}
@@ -100,67 +97,35 @@ button{
 .key.present{background:var(--peach)}
 .key.absent{background:var(--gray-dark);color:white}
 
-/* --- Modal base --- */
+/* modal */
 .modalOverlay{
-  position:fixed; inset:0;
-  display:none;
-  align-items:center; justify-content:center;
-  padding: 18px;
-  background: rgba(15,23,42,.35);
-  backdrop-filter: blur(10px);
-  z-index: 50;
+  position:fixed;inset:0;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(15,23,42,.35);
+  backdrop-filter:blur(10px);
 }
 .modal{
-  width: min(520px, 100%);
-  background: rgba(255,255,255,.85);
-  border: 1px solid rgba(143,104,170,.25);
-  border-radius: 22px;
-  box-shadow: 0 24px 60px rgba(0,0,0,.22);
-  padding: 18px 16px 16px;
-  position: relative;
-  animation: pop .18s ease-out forwards;
-}
-@keyframes pop{
-  from { opacity: 0; transform: translateY(10px) scale(.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-.modalClose{
-  position:absolute; top:10px; right:10px;
-  width: 40px; height: 40px;
-  border-radius: 14px;
-  border: none;
-  background: rgba(15,23,42,.08);
-  color: var(--text);
-  font-size: 18px;
-  font-weight: 900;
-  cursor: pointer;
-}
-.modalTitle{
-  font-size: 18px;
-  font-weight: 1000;
+  background:rgba(255,255,255,.85);
+  border-radius:22px;
+  padding:18px 16px;
+  max-width:480px;width:100%;
+  box-shadow:0 24px 60px rgba(0,0,0,.22);
   text-align:center;
-  margin-top: 6px;
 }
-.modalSub{
-  text-align:center;
-  color: var(--muted);
-  margin-top: 6px;
-  font-weight: 650;
-}
-.modalActions{
-  display:flex;
-  justify-content:center;
-  margin-top: 14px;
-}
+.modalTitle{font-size:18px;font-weight:1000}
+.modalSub{margin-top:6px;color:var(--muted);font-weight:600}
+.modalActions{margin-top:14px;display:flex;justify-content:center;gap:12px}
 .modalLink{
-  display:inline-block;
-  padding: 12px 18px;
-  border-radius: 16px;
-  font-weight: 1000;
-  text-decoration:none;
+  padding:12px 18px;border-radius:16px;
+  font-weight:1000;text-decoration:none;
+  background:linear-gradient(90deg,var(--mint),#ffd8a8);
   color:#0f172a;
-  background: linear-gradient(90deg,var(--mint),#ffd8a8);
-  box-shadow: 0 14px 28px rgba(0,0,0,.12);
+}
+.modalBtn{
+  padding:12px 18px;border-radius:16px;
+  border:none;font-weight:1000;cursor:pointer;
+  background:linear-gradient(90deg,var(--violet),var(--pink));
+  color:white;
 }
 </style>
 </head>
@@ -173,274 +138,98 @@ button{
     </div>
 
     <h1>Guess the word</h1>
-
     <div id="board" class="board"></div>
 
     <div class="bar">
-      <input id="guess" maxlength="6" autocomplete="off" />
+      <input id="guess" maxlength="6" autocomplete="off">
       <button id="send">Submit</button>
       <button id="reset">Reset</button>
     </div>
 
     <div id="msg" class="msg"></div>
-
     <div id="kbd" class="kbd"></div>
   </div>
 </div>
 
-<!-- WIN Popup -->
-<div id="winOverlay" class="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+<!-- WIN -->
+<div id="winOverlay" class="modalOverlay">
   <div class="modal">
-    <button class="modalClose" id="winClose" aria-label="Close">✕</button>
-    <div class="modalTitle" id="winTitle">Congrats! 🎉</div>
+    <div class="modalTitle">Congrats! 🎉</div>
     <div class="modalSub">Visit our website:</div>
     <div class="modalActions">
-      <a id="unlockLink" class="modalLink" href="#" target="_blank" rel="noopener">Open website</a>
+      <a class="modalLink" href="https://foresightst.com/" target="_blank">Open website</a>
     </div>
   </div>
 </div>
 
-<!-- LOSE Popup (no buttons, auto-reset) -->
-<div id="loseOverlay" class="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="loseTitle">
+<!-- LOSE -->
+<div id="loseOverlay" class="modalOverlay">
   <div class="modal">
-    <button class="modalClose" id="loseClose" aria-label="Close">✕</button>
-    <div class="modalTitle" id="loseTitle">Almost! 🙂</div>
+    <div class="modalTitle">Almost 🙂</div>
     <div class="modalSub">Try again</div>
+    <div class="modalActions">
+      <button class="modalBtn" id="tryAgain">Try again</button>
+    </div>
   </div>
 </div>
 
 <script>
-const SECRET_WORD = "IMPACT";
-const UNLOCK_URL  = "https://foresightst.com/";
-const MAX_TRIES = 6, WORD_LEN = 6;
+const SECRET="IMPACT", WORD_LEN=6, MAX=6;
+const board=document.getElementById("board");
+const input=document.getElementById("guess");
+const win=document.getElementById("winOverlay");
+const lose=document.getElementById("loseOverlay");
+const tryAgain=document.getElementById("tryAgain");
 
-const KBD = [
-  ["Q","W","E","R","T","Y","U","I","O","P"],
-  ["A","S","D","F","G","H","J","K","L"],
-  ["GO","Z","X","C","V","B","N","M","⌫"]
-];
-
-let tries = [];
-let finished = false;
-const keyState = {}; // letter -> correct/present/absent
-
-const board = document.getElementById("board");
-const input = document.getElementById("guess");
-const msg = document.getElementById("msg");
-
-const winOverlay = document.getElementById("winOverlay");
-const winClose = document.getElementById("winClose");
-const loseOverlay = document.getElementById("loseOverlay");
-const loseClose = document.getElementById("loseClose");
-
-const unlock = document.getElementById("unlockLink");
-unlock.href = UNLOCK_URL;
-
-let loseTimer = null;
-
-function openWin(){ winOverlay.style.display = "flex"; }
-function closeWin(){ winOverlay.style.display = "none"; }
-
-function openLose(){
-  loseOverlay.style.display = "flex";
-  if (loseTimer) clearTimeout(loseTimer);
-  loseTimer = setTimeout(() => {
-    closeLose();
-    resetGame();
-  }, 900); // auto reset after ~0.9s
-}
-function closeLose(){ loseOverlay.style.display = "none"; }
-
-winClose.addEventListener("click", closeWin);
-winOverlay.addEventListener("click", (e)=>{ if(e.target===winOverlay) closeWin(); });
-
-loseClose.addEventListener("click", ()=>{
-  closeLose();
-  resetGame();
-});
-loseOverlay.addEventListener("click", (e)=>{
-  if(e.target===loseOverlay){
-    closeLose();
-    resetGame();
-  }
-});
-
-document.addEventListener("keydown", (e)=>{
-  if(e.key === "Escape"){
-    closeWin();
-    closeLose();
-  }
-});
+let tries=[], finished=false, keyState={};
 
 function buildBoard(){
-  board.innerHTML = "";
-  for(let r=0;r<MAX_TRIES;r++){
-    const row = document.createElement("div");
-    row.className = "row";
+  board.innerHTML="";
+  for(let r=0;r<MAX;r++){
+    const row=document.createElement("div");
+    row.className="row";
     for(let c=0;c<WORD_LEN;c++){
-      const cell = document.createElement("div");
-      cell.className = "cell";
-      cell.dataset.r = r;
-      cell.dataset.c = c;
+      const cell=document.createElement("div");
+      cell.className="cell";
+      cell.dataset.r=r;cell.dataset.c=c;
       row.appendChild(cell);
     }
     board.appendChild(row);
   }
 }
 
-function evaluate(g){
-  const res = Array(WORD_LEN).fill("absent");
-  const s = SECRET_WORD.split("");
-  const a = g.split("");
-
-  // greens
-  for(let i=0;i<WORD_LEN;i++){
-    if(a[i] === s[i]){
-      res[i] = "correct";
-      s[i] = a[i] = null;
-    }
-  }
-  // yellows
-  for(let i=0;i<WORD_LEN;i++){
-    if(a[i] && s.includes(a[i])){
-      res[i] = "present";
-      s[s.indexOf(a[i])] = null;
-    }
-  }
-  return res;
-}
-
-function paintRow(r,g,res){
-  for(let i=0;i<WORD_LEN;i++){
-    const c = document.querySelector(`.cell[data-r="${r}"][data-c="${i}"]`);
-    c.textContent = g[i];
-    c.classList.add("reveal","pop",res[i]);
-    setTimeout(()=>c.classList.remove("pop"),150);
-  }
-}
-
-function rank(state){
-  return state === "correct" ? 3 : state === "present" ? 2 : state === "absent" ? 1 : 0;
-}
-
-function updateKeyboard(g,res){
-  res.forEach((st,i)=>{
-    const letter = g[i];
-    const prev = keyState[letter];
-    if(rank(st) > rank(prev)){
-      keyState[letter] = st;
-    }
-  });
-
-  document.querySelectorAll(".key").forEach(b=>{
-    const label = b.textContent;
-    b.classList.remove("correct","present","absent");
-    if(keyState[label]) b.classList.add(keyState[label]);
-  });
-}
-
-function clearKeyboardColors(){
-  for(const k in keyState) delete keyState[k];
-  document.querySelectorAll(".key").forEach(b=>{
-    b.classList.remove("correct","present","absent");
-  });
-}
-
 function resetGame(){
-  tries = [];
-  finished = false;
-  msg.textContent = "";
-  input.value = "";
-  clearKeyboardColors();
+  tries=[];finished=false;keyState={};
+  input.value="";
+  document.querySelectorAll(".key").forEach(k=>k.className=k.className.split(" ")[0]);
   buildBoard();
+  lose.style.display="none";
   input.focus();
 }
 
-function sanitize(s){
-  return (s || "").toUpperCase().replace(/[^A-Z]/g,"").slice(0, WORD_LEN);
-}
+tryAgain.onclick=resetGame;
+document.getElementById("reset").onclick=resetGame;
 
-function submit(){
+document.getElementById("send").onclick=()=>{
   if(finished) return;
+  const g=input.value.toUpperCase();
+  if(g.length!==WORD_LEN) return;
 
-  const g = sanitize(input.value);
-  if(g.length !== WORD_LEN) return;
+  const res=[...SECRET].map((l,i)=>g[i]===l?"correct":SECRET.includes(g[i])?"present":"absent");
+  const r=tries.length;
 
-  const r = tries.length;
-  const res = evaluate(g);
-
-  paintRow(r,g,res);
-  updateKeyboard(g,res);
-
-  tries.push(g);
-  input.value = "";
-
-  if(g === SECRET_WORD){
-    finished = true;
-    msg.textContent = "";
-    openWin();
-  } else if(tries.length >= MAX_TRIES){
-    finished = true;
-    msg.textContent = "";
-    openLose();
-  } else {
-    input.focus();
-  }
-}
-
-document.getElementById("send").onclick = submit;
-document.getElementById("reset").onclick = resetGame;
-
-/* on-screen keyboard */
-const kbd = document.getElementById("kbd");
-KBD.forEach(row=>{
-  const r = document.createElement("div");
-  r.className = "kbdRow";
-
-  row.forEach(k=>{
-    const b = document.createElement("button");
-    b.className = "key" + ((k==="GO" || k==="⌫") ? " wide" : "");
-    b.textContent = k;
-
-    b.onclick = ()=>{
-      if(finished) return;
-
-      if(k === "GO"){
-        submit();
-      } else if(k === "⌫"){
-        input.value = input.value.slice(0, -1);
-        input.focus();
-      } else {
-        const cur = sanitize(input.value);
-        if(cur.length < WORD_LEN){
-          input.value = cur + k;
-          input.focus();
-        }
-      }
-    };
-
-    r.appendChild(b);
+  res.forEach((s,i)=>{
+    const c=document.querySelector(`.cell[data-r="${r}"][data-c="${i}"]`);
+    c.textContent=g[i];c.classList.add(s);
   });
 
-  kbd.appendChild(r);
-});
+  tries.push(g);input.value="";
 
-/* keyboard typing */
-document.addEventListener("keydown", (e)=>{
-  if(finished) return;
-
-  if(e.key === "Enter"){ submit(); return; }
-  if(e.key === "Backspace"){ input.value = input.value.slice(0,-1); return; }
-
-  const ch = e.key.toUpperCase();
-  if(/^[A-Z]$/.test(ch)){
-    const cur = sanitize(input.value);
-    if(cur.length < WORD_LEN) input.value = cur + ch;
-  }
-});
+  if(g===SECRET){finished=true;win.style.display="flex";}
+  else if(tries.length>=MAX){finished=true;lose.style.display="flex";}
+};
 
 buildBoard();
-input.focus();
 </script>
 </body>
 </html>
