@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Foresight — QR Wordle</title>
+  <style>
+    /* --- Brand palette (from your logo) --- */
+    :root{
+      --bg: #0b1020;
+      --panel: #0f172a;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+
+      --brand-navy: #34396d;  /* deep navy */
+      --brand-violet: #8f68aa;/* violet */
+      --brand-pink: #be81ad;  /* pink-violet */
+      --brand-mint: #a5dc92;  /* mint green */
+      --brand-peach:#d3af95;  /* peach */
+
+      --cell: 52px;
+      --gap: 8px;
+      --radius: 12px;
+
+      --absent: #475569;      /* slate */
+      --border: #23304a;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(190,129,173,.28), transparent 60%),
+        radial-gradient(1000px 500px at 90% 0%, rgba(165,220,146,.18), transparent 55%),
+        radial-gradient(900px 600px at 50% 120%, rgba(143,104,170,.20), transparent 60%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .wrap{
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 18px 14px 36px;
+    }
+
+    .card{
+      background: rgba(15, 23, 42, .72);
+      border: 1px solid rgba(35,48,74,.9);
+      box-shadow: 0 16px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      border-radius: 18px;
+      padding: 16px 14px 18px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 6px 0 10px;
+    }
+    .brand img{
+      max-height: 54px;
+      width: auto;
+      display:block;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+    }
+
+    h1{
+      margin: 6px 0 4px;
+      font-size: 18px;
+      text-align:center;
+      letter-spacing: .02em;
+    }
+
+    .sub{
+      margin: 0 0 14px;
+      text-align:center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Board */
+    .board{ display:grid; gap: var(--gap); padding: 10px 0 6px; }
+    .row{
+      display:grid;
+      grid-template-columns: repeat(6, var(--cell));
+      gap: var(--gap);
+      justify-content:center;
+    }
+    .cell{
+      width: var(--cell);
+      height: var(--cell);
+      border-radius: var(--radius);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      font-size: 22px;
+      text-transform: uppercase;
+      background: rgba(2,6,23,.55);
+      border: 2px solid rgba(35,48,74,.95);
+      user-select:none;
+    }
+
+    .cell.reveal{ transition: transform .12s ease, background-color .15s ease, border-color .15s ease; }
+    .cell.reveal.pop{ transform: scale(1.05); }
+
+    .cell.correct{
+      background: var(--brand-mint);
+      border-color: var(--brand-mint);
+      color: #0b1220;
+    }
+    .cell.present{
+      background: var(--brand-pink);
+      border-color: var(--brand-pink);
+      color: #0b1220;
+    }
+    .cell.absent{
+      background: rgba(71,85,105,.9);
+      border-color: rgba(71,85,105,.9);
+      color: #0b1220;
+    }
+
+    /* Input bar (optional, but handy) */
+    .bar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    input[type="text"]{
+      width: 250px;
+      height: 44px;
+      border-radius: 14px;
+      border: 2px solid rgba(35,48,74,.95);
+      background: rgba(2,6,23,.55);
+      color: var(--text);
+      padding: 0 12px;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      outline: none;
+    }
+    input[type="text"]:focus{
+      border-color: rgba(165,220,146,.85);
+      box-shadow: 0 0 0 4px rgba(165,220,146,.12);
+    }
+
+    button{
+      height: 44px;
+      padding: 0 14px;
+      border-radius: 14px;
+      border: 0;
+      background: linear-gradient(90deg, var(--brand-violet), var(--brand-pink));
+      color: #0b1220;
+      font-weight: 900;
+      cursor:pointer;
+    }
+    button.secondary{
+      background: rgba(148,163,184,.18);
+      color: var(--text);
+      border: 1px solid rgba(148,163,184,.25);
+    }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .msg{
+      text-align:center;
+      min-height: 22px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .winBox{
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(35,48,74,.95);
+      background: rgba(2,6,23,.52);
+      display:none;
+      text-align:center;
+    }
+    .winBox .title{
+      font-weight: 1000;
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+    .winBox a{
+      display:inline-block;
+      margin-top: 10px;
+      text-decoration:none;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-weight: 1000;
+      color: #0b1220;
+      background: linear-gradient(90deg, var(--brand-mint), var(--brand-peach));
+      box-shadow: 0 10px 24px rgba(0,0,0,.22);
+    }
+
+    /* Keyboard (Wordle-like) */
+    .kbd{
+      margin: 14px auto 0;
+      width: min(520px, 100%);
+      display:grid;
+      gap: 8px;
+    }
+    .kbdRow{
+      display:flex;
+      gap: 6px;
+      justify-content:center;
+    }
+    .key{
+      flex: 1;
+      min-width: 28px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(35,48,74,.95);
+      background: rgba(148,163,184,.16);
+      color: var(--text);
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor:pointer;
+      user-select:none;
+    }
+    .key.wide{ flex: 1.4; }
+    .key.correct{ background: var(--brand-mint); border-color: var(--brand-mint); color:#0b1220; }
+    .key.present{ background: var(--brand-pink); border-color: var(--brand-pink); color:#0b1220; }
+    .key.absent{ background: rgba(71,85,105,.9); border-color: rgba(71,85,105,.9); color:#0b1220; }
+
+    .foot{
+      text-align:center;
+      margin-top: 10px;
+      color: rgba(148,163,184,.7);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">
+        <!-- Put "foresight_color-01.png" next to index.html -->
+        <img src="foresight_color-01.png" alt="Foresight" onerror="this.style.display='none'">
+      </div>
+
+      <h1>Scan & play</h1>
+      <div class="sub">You have 6 tries to guess the 6-letter word.</div>
+
+      <div id="board" class="board" aria-label="Board"></div>
+
+      <div class="bar">
+        <input id="guess" type="text" maxlength="6" inputmode="text" autocomplete="off" autocapitalize="characters" placeholder="IMPACT" />
+        <button id="send">Submit</button>
+        <button id="reset" class="secondary" title="Restart">Reset</button>
+      </div>
+
+      <div id="msg" class="msg"></div>
+
+      <div id="winBox" class="winBox">
+        <div class="title">Congrats! Visit our website:</div>
+        <a id="unlockLink" href="#" rel="noopener">Open website</a>
+      </div>
+
+      <div id="kbd" class="kbd" aria-label="Keyboard"></div>
+      <div class="foot">Tip: you can use your phone keyboard or the on-screen keys.</div>
+    </div>
+  </div>
+
+  <script>
+    // === CONFIG ===
+    const SECRET_WORD = "IMPACT";
+    const UNLOCK_URL  = "https://foresightst.com/";
+    const MAX_TRIES = 6;
+    const WORD_LEN = 6;
+
+    // Keyboard layout (Wordle-ish)
+    const KBD_ROWS = [
+      ["Q","W","E","R","T","Y","U","I","O","P"],
+      ["A","S","D","F","G","H","J","K","L"],
+      ["ENTER","Z","X","C","V","B","N","M","DEL"]
+    ];
+
+    let tries = [];
+    let finished = false;
+
+    const boardEl = document.getElementById("board");
+    const inputEl = document.getElementById("guess");
+    const sendBtn = document.getElementById("send");
+    const resetBtn = document.getElementById("reset");
+    const msgEl = document.getElementById("msg");
+    const winBox = document.getElementById("winBox");
+    const unlockLink = document.getElementById("unlockLink");
+    const kbdEl = document.getElementById("kbd");
+
+    unlockLink.href = UNLOCK_URL;
+
+    // Track best-known key state: correct > present > absent
+    const keyState = new Map();
+
+    function normalize(s){
+      return (s || "")
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-ZÀ-Ü]/g,"")
+        .replace(/[ÀÁÂÃÄÅ]/g,"A")
+        .replace(/[ÈÉÊË]/g,"E")
+        .replace(/[ÌÍÎÏ]/g,"I")
+        .replace(/[ÒÓÔÕÖ]/g,"O")
+        .replace(/[ÙÚÛÜ]/g,"U");
+    }
+
+    function setMsg(t){ msgEl.textContent = t || ""; }
+
+    function buildBoard(){
+      boardEl.innerHTML = "";
+      for(let r=0;r<MAX_TRIES;r++){
+        const row = document.createElement("div");
+        row.className = "row";
+        for(let c=0;c<WORD_LEN;c++){
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.setAttribute("data-r", r);
+          cell.setAttribute("data-c", c);
+          row.appendChild(cell);
+        }
+        boardEl.appendChild(row);
+      }
+    }
+
+    function buildKeyboard(){
+      kbdEl.innerHTML = "";
+      for(const rowKeys of KBD_ROWS){
+        const row = document.createElement("div");
+        row.className = "kbdRow";
+        for(const k of rowKeys){
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "key" + (k === "ENTER" || k === "DEL" ? " wide" : "");
+          b.textContent = (k === "DEL" ? "⌫" : k);
+          b.dataset.key = k;
+          b.addEventListener("click", () => pressKey(k));
+          row.appendChild(b);
+        }
+        kbdEl.appendChild(row);
+      }
+      paintKeyboard();
+    }
+
+    function paintKeyboard(){
+      const keys = kbdEl.querySelectorAll(".key");
+      keys.forEach(btn => {
+        const k = btn.dataset.key;
+        btn.classList.remove("correct","present","absent");
+        const st = keyState.get(k);
+        if(st) btn.classList.add(st);
+      });
+    }
+
+    // Wordle-like evaluation (handles duplicates)
+    function evaluate(guess, secret){
+      const res = Array(WORD_LEN).fill("absent");
+      const secretArr = secret.split("");
+      const guessArr = guess.split("");
+
+      // greens
+      for(let i=0;i<WORD_LEN;i++){
+        if(guessArr[i] === secretArr[i]){
+          res[i] = "correct";
+          secretArr[i] = null;
+          guessArr[i] = null;
+        }
+      }
+      // yellows
+      for(let i=0;i<WORD_LEN;i++){
+        if(guessArr[i] == null) continue;
+        const idx = secretArr.indexOf(guessArr[i]);
+        if(idx !== -1){
+          res[i] = "present";
+          secretArr[idx] = null;
+        }
+      }
+      return res;
+    }
+
+    function paintRow(rowIndex, guess, evals){
+      for(let c=0;c<WORD_LEN;c++){
+        const cell = boardEl.querySelector(`.cell[data-r="${rowIndex}"][data-c="${c}"]`);
+        cell.textContent = guess[c] || "";
+        cell.classList.add("reveal");
+        setTimeout(() => cell.classList.add("pop"), 10);
+        setTimeout(() => cell.classList.remove("pop"), 160);
+        cell.classList.remove("correct","present","absent");
+        cell.classList.add(evals[c]);
+      }
+    }
+
+    function rankState(s){
+      return s === "correct" ? 3 : s === "present" ? 2 : s === "absent" ? 1 : 0;
+    }
+
+    function updateKeyStates(guess, evals){
+      for(let i=0;i<guess.length;i++){
+        const letter = guess[i];
+        const st = evals[i];
+        const prev = keyState.get(letter);
+        if(rankState(st) > rankState(prev)){
+          keyState.set(letter, st);
+        }
+      }
+      paintKeyboard();
+    }
+
+    function onWin(){
+      finished = true;
+      setMsg("");
+      winBox.style.display = "block";
+      sendBtn.disabled = true;
+      inputEl.disabled = true;
+    }
+
+    function onLose(){
+      finished = true;
+      setMsg("You lost :( The word was... Impact!");
+      sendBtn.disabled = true;
+      inputEl.disabled = true;
+    }
+
+    function submit(){
+      if(finished) return;
+
+      const guess = normalize(inputEl.value);
+      if(guess.length !== WORD_LEN){
+        setMsg(`Please enter a ${WORD_LEN}-letter word.`);
+        return;
+      }
+
+      setMsg("");
+      const rowIndex = tries.length;
+      const evals = evaluate(guess, SECRET_WORD);
+
+      tries.push({ guess, evals });
+      paintRow(rowIndex, guess, evals);
+      updateKeyStates(guess, evals);
+
+      inputEl.value = "";
+      inputEl.focus();
+
+      if(guess === SECRET_WORD){
+        onWin();
+        return;
+      }
+      if(tries.length >= MAX_TRIES){
+        onLose();
+      }
+    }
+
+    function reset(){
+      tries = [];
+      finished = false;
+      winBox.style.display = "none";
+      sendBtn.disabled = false;
+      inputEl.disabled = false;
+      inputEl.value = "";
+      setMsg("");
+      keyState.clear();
+      buildBoard();
+      paintKeyboard();
+      inputEl.focus();
+    }
+
+    function pressKey(k){
+      if(finished) return;
+
+      if(k === "ENTER"){
+        submit();
+        return;
+      }
+      if(k === "DEL"){
+        inputEl.value = inputEl.value.slice(0, -1);
+        return;
+      }
+
+      // Letter
+      const current = normalize(inputEl.value);
+      if(current.length >= WORD_LEN) return;
+      inputEl.value = current + k;
+    }
+
+    // init
+    buildBoard();
+    buildKeyboard();
+    inputEl.focus();
+
+    sendBtn.addEventListener("click", submit);
+    resetBtn.addEventListener("click", reset);
+
+    // Enter submits, backspace edits, letters append (for desktop)
+    document.addEventListener("keydown", (e) => {
+      if(finished) return;
+
+      if(e.key === "Enter"){ submit(); return; }
+      if(e.key === "Backspace"){
+        inputEl.value = inputEl.value.slice(0, -1);
+        return;
+      }
+      const ch = e.key.toUpperCase();
+      if(/^[A-Z]$/.test(ch)){
+        pressKey(ch);
+      }
+    });
+  </script>
+</body>
+</html>
