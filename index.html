@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Foresight — Guess the word</title>
 
 <style>
@@ -62,6 +62,7 @@ h1{text-align:center;margin:8px 0 18px;font-size:20px;letter-spacing:.04em}
   display:flex;align-items:center;justify-content:center;
   font-weight:900;font-size:22px;text-transform:uppercase;
   background:white;border:2px solid rgba(143,104,170,.25);
+  user-select:none;
 }
 .cell.correct{background:var(--mint);border-color:var(--mint)}
 .cell.present{background:var(--peach);border-color:var(--peach)}
@@ -113,8 +114,7 @@ button{
   text-align:center;
 }
 .modalTitle{font-size:18px;font-weight:1000}
-.modalSub{margin-top:6px;color:var(--muted);font-weight:600}
-.modalActions{margin-top:14px;display:flex;justify-content:center;gap:12px}
+.modalActions{margin-top:14px;display:flex;justify-content:center}
 .modalLink{
   padding:12px 18px;border-radius:16px;
   font-weight:1000;text-decoration:none;
@@ -155,7 +155,6 @@ button{
 <div id="winOverlay" class="modalOverlay">
   <div class="modal">
     <div class="modalTitle">Congrats! 🎉</div>
-    <div class="modalSub">Visit our website:</div>
     <div class="modalActions">
       <a class="modalLink" href="https://foresightst.com/" target="_blank">Open website</a>
     </div>
@@ -166,7 +165,6 @@ button{
 <div id="loseOverlay" class="modalOverlay">
   <div class="modal">
     <div class="modalTitle">Almost 🙂</div>
-    <div class="modalSub">Try again</div>
     <div class="modalActions">
       <button class="modalBtn" id="tryAgain">Try again</button>
     </div>
@@ -181,7 +179,7 @@ const win=document.getElementById("winOverlay");
 const lose=document.getElementById("loseOverlay");
 const tryAgain=document.getElementById("tryAgain");
 
-let tries=[], finished=false, keyState={};
+let tries=[], finished=false;
 
 function buildBoard(){
   board.innerHTML="";
@@ -199,10 +197,9 @@ function buildBoard(){
 }
 
 function resetGame(){
-  tries=[];finished=false;keyState={};
+  tries=[];finished=false;
   input.value="";
-  document.querySelectorAll(".key").forEach(k=>k.className=k.className.split(" ")[0]);
-  buildBoard();
+  document.querySelectorAll(".cell").forEach(c=>c.textContent="");
   lose.style.display="none";
   input.focus();
 }
@@ -215,13 +212,15 @@ document.getElementById("send").onclick=()=>{
   const g=input.value.toUpperCase();
   if(g.length!==WORD_LEN) return;
 
-  const res=[...SECRET].map((l,i)=>g[i]===l?"correct":SECRET.includes(g[i])?"present":"absent");
   const r=tries.length;
-
-  res.forEach((s,i)=>{
-    const c=document.querySelector(`.cell[data-r="${r}"][data-c="${i}"]`);
-    c.textContent=g[i];c.classList.add(s);
-  });
+  for(let i=0;i<WORD_LEN;i++){
+    const cell=document.querySelector(`.cell[data-r="${r}"][data-c="${i}"]`);
+    cell.textContent=g[i];
+    cell.classList.add(
+      g[i]===SECRET[i] ? "correct" :
+      SECRET.includes(g[i]) ? "present" : "absent"
+    );
+  }
 
   tries.push(g);input.value="";
 
