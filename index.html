@@ -3,86 +3,74 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Foresight — QR Wordle</title>
-  <style>
-    /* --- Brand palette (from your logo) --- */
-    :root{
-      --bg: #0b1020;
-      --panel: #0f172a;
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+  <title>Foresight — Guess the Word</title>
 
-      --brand-navy: #34396d;  /* deep navy */
-      --brand-violet: #8f68aa;/* violet */
-      --brand-pink: #be81ad;  /* pink-violet */
-      --brand-mint: #a5dc92;  /* mint green */
-      --brand-peach:#d3af95;  /* peach */
+  <style>
+    :root{
+      /* light lilac background */
+      --bg: #f2eef9;
+
+      --text: #0f172a;
+      --muted: #475569;
+
+      /* brand colors */
+      --brand-violet: #8f68aa;
+      --brand-pink: #be81ad;
+      --brand-mint: #a5dc92;
+      --brand-peach:#d3af95;
 
       --cell: 52px;
       --gap: 8px;
-      --radius: 12px;
-
-      --absent: #475569;      /* slate */
-      --border: #23304a;
+      --radius: 14px;
     }
 
     *{ box-sizing: border-box; }
+
     body{
       margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--text);
       background:
-        radial-gradient(1200px 500px at 10% -10%, rgba(190,129,173,.28), transparent 60%),
-        radial-gradient(1000px 500px at 90% 0%, rgba(165,220,146,.18), transparent 55%),
-        radial-gradient(900px 600px at 50% 120%, rgba(143,104,170,.20), transparent 60%),
+        radial-gradient(900px 500px at 0% 0%, rgba(190,129,173,.35), transparent 60%),
+        radial-gradient(800px 500px at 100% 20%, rgba(165,220,146,.25), transparent 60%),
+        radial-gradient(900px 600px at 50% 100%, rgba(143,104,170,.30), transparent 60%),
         var(--bg);
+      color: var(--text);
       min-height: 100vh;
     }
 
     .wrap{
       max-width: 720px;
       margin: 0 auto;
-      padding: 18px 14px 36px;
+      padding: 20px 14px 36px;
     }
 
     .card{
-      background: rgba(15, 23, 42, .72);
-      border: 1px solid rgba(35,48,74,.9);
-      box-shadow: 0 16px 40px rgba(0,0,0,.35);
-      backdrop-filter: blur(8px);
-      border-radius: 18px;
-      padding: 16px 14px 18px;
+      background: rgba(255,255,255,.6);
+      backdrop-filter: blur(10px);
+      border-radius: 22px;
+      padding: 20px 16px 22px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.15);
     }
 
     .brand{
       display:flex;
-      align-items:center;
       justify-content:center;
-      padding: 6px 0 10px;
+      margin-bottom: 10px;
     }
     .brand img{
-      max-height: 54px;
+      max-height: 56px;
       width: auto;
-      display:block;
-      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
     }
 
     h1{
-      margin: 6px 0 4px;
-      font-size: 18px;
       text-align:center;
-      letter-spacing: .02em;
+      margin: 8px 0 18px;
+      font-size: 20px;
+      letter-spacing: .04em;
     }
 
-    .sub{
-      margin: 0 0 14px;
-      text-align:center;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    /* Board */
-    .board{ display:grid; gap: var(--gap); padding: 10px 0 6px; }
+    /* board */
+    .board{ display:grid; gap: var(--gap); }
     .row{
       display:grid;
       grid-template-columns: repeat(6, var(--cell));
@@ -99,419 +87,253 @@
       font-weight: 900;
       font-size: 22px;
       text-transform: uppercase;
-      background: rgba(2,6,23,.55);
-      border: 2px solid rgba(35,48,74,.95);
-      user-select:none;
+      background: rgba(255,255,255,.65);
+      border: 2px solid rgba(143,104,170,.25);
     }
 
-    .cell.reveal{ transition: transform .12s ease, background-color .15s ease, border-color .15s ease; }
+    .cell.reveal{ transition: transform .12s ease; }
     .cell.reveal.pop{ transform: scale(1.05); }
 
     .cell.correct{
       background: var(--brand-mint);
       border-color: var(--brand-mint);
-      color: #0b1220;
     }
     .cell.present{
       background: var(--brand-pink);
       border-color: var(--brand-pink);
-      color: #0b1220;
     }
     .cell.absent{
-      background: rgba(71,85,105,.9);
-      border-color: rgba(71,85,105,.9);
-      color: #0b1220;
+      background: #cbd5e1;
+      border-color: #cbd5e1;
     }
 
-    /* Input bar (optional, but handy) */
+    /* input */
     .bar{
       display:flex;
       gap:10px;
-      align-items:center;
       justify-content:center;
-      flex-wrap:wrap;
-      margin-top: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
     }
-    input[type="text"]{
-      width: 250px;
+    input{
+      width: 240px;
       height: 44px;
-      border-radius: 14px;
-      border: 2px solid rgba(35,48,74,.95);
-      background: rgba(2,6,23,.55);
-      color: var(--text);
+      border-radius: 16px;
+      border: 2px solid rgba(143,104,170,.35);
+      background: white;
       padding: 0 12px;
       font-size: 16px;
       text-transform: uppercase;
-      letter-spacing: .08em;
-      outline: none;
+      outline:none;
     }
-    input[type="text"]:focus{
-      border-color: rgba(165,220,146,.85);
-      box-shadow: 0 0 0 4px rgba(165,220,146,.12);
+    input:focus{
+      border-color: var(--brand-mint);
+      box-shadow: 0 0 0 4px rgba(165,220,146,.25);
     }
 
     button{
       height: 44px;
-      padding: 0 14px;
-      border-radius: 14px;
-      border: 0;
-      background: linear-gradient(90deg, var(--brand-violet), var(--brand-pink));
-      color: #0b1220;
-      font-weight: 900;
-      cursor:pointer;
+      padding: 0 16px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 800;
+      cursor: pointer;
     }
-    button.secondary{
-      background: rgba(148,163,184,.18);
-      color: var(--text);
-      border: 1px solid rgba(148,163,184,.25);
+    #send{
+      background: linear-gradient(90deg,var(--brand-violet),var(--brand-pink));
+      color:#fff;
     }
-    button:disabled{ opacity:.55; cursor:not-allowed; }
+    #reset{
+      background: #e5e7eb;
+      color:#334155;
+    }
 
     .msg{
       text-align:center;
+      margin-top: 12px;
       min-height: 22px;
-      margin-top: 10px;
       color: var(--muted);
-      font-weight: 650;
+      font-weight: 600;
     }
 
     .winBox{
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(35,48,74,.95);
-      background: rgba(2,6,23,.52);
       display:none;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.75);
       text-align:center;
-    }
-    .winBox .title{
-      font-weight: 1000;
-      font-size: 18px;
-      margin-bottom: 6px;
     }
     .winBox a{
       display:inline-block;
       margin-top: 10px;
-      text-decoration:none;
-      padding: 10px 14px;
-      border-radius: 14px;
-      font-weight: 1000;
-      color: #0b1220;
-      background: linear-gradient(90deg, var(--brand-mint), var(--brand-peach));
-      box-shadow: 0 10px 24px rgba(0,0,0,.22);
-    }
-
-    /* Keyboard (Wordle-like) */
-    .kbd{
-      margin: 14px auto 0;
-      width: min(520px, 100%);
-      display:grid;
-      gap: 8px;
-    }
-    .kbdRow{
-      display:flex;
-      gap: 6px;
-      justify-content:center;
-    }
-    .key{
-      flex: 1;
-      min-width: 28px;
-      height: 44px;
-      border-radius: 12px;
-      border: 1px solid rgba(35,48,74,.95);
-      background: rgba(148,163,184,.16);
-      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 16px;
       font-weight: 900;
-      text-transform: uppercase;
-      cursor:pointer;
-      user-select:none;
+      text-decoration:none;
+      color:#0f172a;
+      background: linear-gradient(90deg,var(--brand-mint),var(--brand-peach));
     }
-    .key.wide{ flex: 1.4; }
-    .key.correct{ background: var(--brand-mint); border-color: var(--brand-mint); color:#0b1220; }
-    .key.present{ background: var(--brand-pink); border-color: var(--brand-pink); color:#0b1220; }
-    .key.absent{ background: rgba(71,85,105,.9); border-color: rgba(71,85,105,.9); color:#0b1220; }
 
-    .foot{
-      text-align:center;
-      margin-top: 10px;
-      color: rgba(148,163,184,.7);
-      font-size: 12px;
+    /* keyboard */
+    .kbd{ margin-top: 16px; display:grid; gap:8px; }
+    .kbdRow{ display:flex; gap:6px; justify-content:center; }
+    .key{
+      flex:1;
+      height: 44px;
+      border-radius: 14px;
+      border:none;
+      background:#e5e7eb;
+      font-weight: 800;
+      cursor:pointer;
     }
+    .key.wide{ flex:1.4; }
+
+    .key.correct{ background: var(--brand-mint); }
+    .key.present{ background: var(--brand-pink); }
+    .key.absent{ background: #cbd5e1; }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="card">
       <div class="brand">
-        <!-- Put "foresight_color-01.png" next to index.html -->
-        <img src="foresight_color-01.png" alt="Foresight" onerror="this.style.display='none'">
+        <img src="foresight_color-01.png" alt="Foresight">
       </div>
 
-      <h1>Scan & play</h1>
-      <div class="sub">You have 6 tries to guess the 6-letter word.</div>
+      <h1>Guess the word</h1>
 
-      <div id="board" class="board" aria-label="Board"></div>
+      <div id="board" class="board"></div>
 
       <div class="bar">
-        <input id="guess" type="text" maxlength="6" inputmode="text" autocomplete="off" autocapitalize="characters" placeholder="IMPACT" />
+        <input id="guess" type="text" maxlength="6" autocomplete="off" />
         <button id="send">Submit</button>
-        <button id="reset" class="secondary" title="Restart">Reset</button>
+        <button id="reset">Reset</button>
       </div>
 
       <div id="msg" class="msg"></div>
 
       <div id="winBox" class="winBox">
-        <div class="title">Congrats! Visit our website:</div>
-        <a id="unlockLink" href="#" rel="noopener">Open website</a>
+        <div><strong>Congrats! Visit our website:</strong></div>
+        <a id="unlockLink" href="#" target="_blank">Open website</a>
       </div>
 
-      <div id="kbd" class="kbd" aria-label="Keyboard"></div>
-      <div class="foot">Tip: you can use your phone keyboard or the on-screen keys.</div>
+      <div id="kbd" class="kbd"></div>
     </div>
   </div>
 
   <script>
-    // === CONFIG ===
     const SECRET_WORD = "IMPACT";
     const UNLOCK_URL  = "https://foresightst.com/";
     const MAX_TRIES = 6;
     const WORD_LEN = 6;
 
-    // Keyboard layout (Wordle-ish)
     const KBD_ROWS = [
       ["Q","W","E","R","T","Y","U","I","O","P"],
       ["A","S","D","F","G","H","J","K","L"],
-      ["ENTER","Z","X","C","V","B","N","M","DEL"]
+      ["GO","Z","X","C","V","B","N","M","⌫"]
     ];
 
     let tries = [];
     let finished = false;
-
-    const boardEl = document.getElementById("board");
-    const inputEl = document.getElementById("guess");
-    const sendBtn = document.getElementById("send");
-    const resetBtn = document.getElementById("reset");
-    const msgEl = document.getElementById("msg");
-    const winBox = document.getElementById("winBox");
-    const unlockLink = document.getElementById("unlockLink");
-    const kbdEl = document.getElementById("kbd");
-
-    unlockLink.href = UNLOCK_URL;
-
-    // Track best-known key state: correct > present > absent
     const keyState = new Map();
 
-    function normalize(s){
-      return (s || "")
-        .trim()
-        .toUpperCase()
-        .replace(/[^A-ZÀ-Ü]/g,"")
-        .replace(/[ÀÁÂÃÄÅ]/g,"A")
-        .replace(/[ÈÉÊË]/g,"E")
-        .replace(/[ÌÍÎÏ]/g,"I")
-        .replace(/[ÒÓÔÕÖ]/g,"O")
-        .replace(/[ÙÚÛÜ]/g,"U");
-    }
-
-    function setMsg(t){ msgEl.textContent = t || ""; }
+    const board = document.getElementById("board");
+    const input = document.getElementById("guess");
+    const msg = document.getElementById("msg");
+    const winBox = document.getElementById("winBox");
+    document.getElementById("unlockLink").href = UNLOCK_URL;
 
     function buildBoard(){
-      boardEl.innerHTML = "";
+      board.innerHTML = "";
       for(let r=0;r<MAX_TRIES;r++){
-        const row = document.createElement("div");
-        row.className = "row";
+        const row=document.createElement("div");
+        row.className="row";
         for(let c=0;c<WORD_LEN;c++){
-          const cell = document.createElement("div");
-          cell.className = "cell";
-          cell.setAttribute("data-r", r);
-          cell.setAttribute("data-c", c);
+          const cell=document.createElement("div");
+          cell.className="cell";
+          cell.dataset.r=r;
+          cell.dataset.c=c;
           row.appendChild(cell);
         }
-        boardEl.appendChild(row);
+        board.appendChild(row);
       }
     }
 
-    function buildKeyboard(){
-      kbdEl.innerHTML = "";
-      for(const rowKeys of KBD_ROWS){
-        const row = document.createElement("div");
-        row.className = "kbdRow";
-        for(const k of rowKeys){
-          const b = document.createElement("button");
-          b.type = "button";
-          b.className = "key" + (k === "ENTER" || k === "DEL" ? " wide" : "");
-          b.textContent = (k === "DEL" ? "⌫" : k);
-          b.dataset.key = k;
-          b.addEventListener("click", () => pressKey(k));
-          row.appendChild(b);
-        }
-        kbdEl.appendChild(row);
-      }
-      paintKeyboard();
-    }
-
-    function paintKeyboard(){
-      const keys = kbdEl.querySelectorAll(".key");
-      keys.forEach(btn => {
-        const k = btn.dataset.key;
-        btn.classList.remove("correct","present","absent");
-        const st = keyState.get(k);
-        if(st) btn.classList.add(st);
-      });
-    }
-
-    // Wordle-like evaluation (handles duplicates)
-    function evaluate(guess, secret){
+    function evaluate(guess){
       const res = Array(WORD_LEN).fill("absent");
-      const secretArr = secret.split("");
-      const guessArr = guess.split("");
+      const s = SECRET_WORD.split("");
+      const g = guess.split("");
 
-      // greens
       for(let i=0;i<WORD_LEN;i++){
-        if(guessArr[i] === secretArr[i]){
-          res[i] = "correct";
-          secretArr[i] = null;
-          guessArr[i] = null;
+        if(g[i]===s[i]){
+          res[i]="correct"; s[i]=null; g[i]=null;
         }
       }
-      // yellows
       for(let i=0;i<WORD_LEN;i++){
-        if(guessArr[i] == null) continue;
-        const idx = secretArr.indexOf(guessArr[i]);
-        if(idx !== -1){
-          res[i] = "present";
-          secretArr[idx] = null;
+        if(g[i] && s.includes(g[i])){
+          res[i]="present";
+          s[s.indexOf(g[i])]=null;
         }
       }
       return res;
     }
 
-    function paintRow(rowIndex, guess, evals){
-      for(let c=0;c<WORD_LEN;c++){
-        const cell = boardEl.querySelector(`.cell[data-r="${rowIndex}"][data-c="${c}"]`);
-        cell.textContent = guess[c] || "";
-        cell.classList.add("reveal");
-        setTimeout(() => cell.classList.add("pop"), 10);
-        setTimeout(() => cell.classList.remove("pop"), 160);
-        cell.classList.remove("correct","present","absent");
-        cell.classList.add(evals[c]);
+    function paintRow(r,guess,res){
+      for(let i=0;i<WORD_LEN;i++){
+        const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${i}"]`);
+        cell.textContent = guess[i];
+        cell.classList.add("reveal","pop",res[i]);
+        setTimeout(()=>cell.classList.remove("pop"),150);
       }
-    }
-
-    function rankState(s){
-      return s === "correct" ? 3 : s === "present" ? 2 : s === "absent" ? 1 : 0;
-    }
-
-    function updateKeyStates(guess, evals){
-      for(let i=0;i<guess.length;i++){
-        const letter = guess[i];
-        const st = evals[i];
-        const prev = keyState.get(letter);
-        if(rankState(st) > rankState(prev)){
-          keyState.set(letter, st);
-        }
-      }
-      paintKeyboard();
-    }
-
-    function onWin(){
-      finished = true;
-      setMsg("");
-      winBox.style.display = "block";
-      sendBtn.disabled = true;
-      inputEl.disabled = true;
-    }
-
-    function onLose(){
-      finished = true;
-      setMsg("You lost :( The word was... Impact!");
-      sendBtn.disabled = true;
-      inputEl.disabled = true;
     }
 
     function submit(){
       if(finished) return;
+      const guess = input.value.toUpperCase();
+      if(guess.length!==WORD_LEN) return;
 
-      const guess = normalize(inputEl.value);
-      if(guess.length !== WORD_LEN){
-        setMsg(`Please enter a ${WORD_LEN}-letter word.`);
-        return;
-      }
+      const r = tries.length;
+      const res = evaluate(guess);
+      paintRow(r,guess,res);
+      tries.push(guess);
+      input.value="";
 
-      setMsg("");
-      const rowIndex = tries.length;
-      const evals = evaluate(guess, SECRET_WORD);
-
-      tries.push({ guess, evals });
-      paintRow(rowIndex, guess, evals);
-      updateKeyStates(guess, evals);
-
-      inputEl.value = "";
-      inputEl.focus();
-
-      if(guess === SECRET_WORD){
-        onWin();
-        return;
-      }
-      if(tries.length >= MAX_TRIES){
-        onLose();
+      if(guess===SECRET_WORD){
+        finished=true;
+        winBox.style.display="block";
+      } else if(tries.length>=MAX_TRIES){
+        finished=true;
+        msg.textContent="You lost :( The word was... Impact!";
       }
     }
 
-    function reset(){
-      tries = [];
-      finished = false;
-      winBox.style.display = "none";
-      sendBtn.disabled = false;
-      inputEl.disabled = false;
-      inputEl.value = "";
-      setMsg("");
-      keyState.clear();
-      buildBoard();
-      paintKeyboard();
-      inputEl.focus();
+    document.getElementById("send").onclick=submit;
+    document.getElementById("reset").onclick=()=>location.reload();
+
+    function buildKeyboard(){
+      const k=document.getElementById("kbd");
+      KBD_ROWS.forEach(row=>{
+        const r=document.createElement("div");
+        r.className="kbdRow";
+        row.forEach(key=>{
+          const b=document.createElement("button");
+          b.className="key"+((key==="GO"||key==="⌫")?" wide":"");
+          b.textContent=key;
+          b.onclick=()=>{
+            if(key==="GO") submit();
+            else if(key==="⌫") input.value=input.value.slice(0,-1);
+            else if(input.value.length<WORD_LEN) input.value+=key;
+          };
+          r.appendChild(b);
+        });
+        k.appendChild(r);
+      });
     }
 
-    function pressKey(k){
-      if(finished) return;
-
-      if(k === "ENTER"){
-        submit();
-        return;
-      }
-      if(k === "DEL"){
-        inputEl.value = inputEl.value.slice(0, -1);
-        return;
-      }
-
-      // Letter
-      const current = normalize(inputEl.value);
-      if(current.length >= WORD_LEN) return;
-      inputEl.value = current + k;
-    }
-
-    // init
     buildBoard();
     buildKeyboard();
-    inputEl.focus();
-
-    sendBtn.addEventListener("click", submit);
-    resetBtn.addEventListener("click", reset);
-
-    // Enter submits, backspace edits, letters append (for desktop)
-    document.addEventListener("keydown", (e) => {
-      if(finished) return;
-
-      if(e.key === "Enter"){ submit(); return; }
-      if(e.key === "Backspace"){
-        inputEl.value = inputEl.value.slice(0, -1);
-        return;
-      }
-      const ch = e.key.toUpperCase();
-      if(/^[A-Z]$/.test(ch)){
-        pressKey(ch);
-      }
-    });
   </script>
 </body>
 </html>
