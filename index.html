@@ -20,7 +20,7 @@
   --gray-light: #cbd5e1;
   --gray-dark:  #475569;
 
-  /* ✅ responsive cells on mobile */
+  /* responsive board cells */
   --cell: clamp(38px, 9.5vw, 52px);
 
   --gap: 8px;
@@ -39,9 +39,16 @@ body{
     var(--bg);
   color: var(--text);
   min-height:100vh;
+
+  /* ✅ prevents horizontal scroll if anything still overflows */
+  overflow-x: hidden;
 }
 
-.wrap{max-width:720px;margin:auto;padding:20px 14px 36px}
+.wrap{
+  max-width:720px;
+  margin:auto;
+  padding:20px 14px calc(36px + env(safe-area-inset-bottom));
+}
 
 .card{
   background: rgba(255,255,255,.6);
@@ -92,13 +99,44 @@ button{
 .msg{text-align:center;margin-top:12px;min-height:22px;font-weight:600;color:var(--muted)}
 
 /* keyboard */
-.kbd{margin-top:16px;display:grid;gap:8px}
-.kbdRow{display:flex;gap:6px;justify-content:center}
-.key{
-  flex:1;height:44px;border-radius:14px;border:none;
-  background:#e5e7eb;font-weight:800;cursor:pointer;
-  user-select:none;
+.kbd{
+  margin-top:16px;
+  display:grid;
+  gap:8px;
+
+  /* ✅ keep keyboard within viewport */
+  width:100%;
+  max-width:520px;
+  margin-left:auto;
+  margin-right:auto;
 }
+
+.kbdRow{
+  display:flex;
+  gap:6px;
+  justify-content:center;
+
+  /* ✅ ensure rows don’t exceed container */
+  width:100%;
+}
+
+.key{
+  flex:1;
+  height:44px;
+  border-radius:14px;
+  border:none;
+  background:#e5e7eb;
+  font-weight:800;
+  cursor:pointer;
+  user-select:none;
+
+  /* ✅ critical: allows buttons to shrink instead of overflowing */
+  min-width:0;
+
+  /* avoid extra width from padding on mobile */
+  padding:0;
+}
+
 .key.wide{flex:1.4}
 .key.correct{background:var(--mint)}
 .key.present{background:var(--peach)}
@@ -167,12 +205,21 @@ button{
 
 /* ✅ extra mobile tuning */
 @media (max-width: 420px){
-  .wrap{ padding: 14px 10px 24px; }
+  .wrap{ padding: 14px 10px calc(24px + env(safe-area-inset-bottom)); }
   .card{ padding: 16px 12px 16px; border-radius: 18px; }
   h1{ font-size: 18px; margin: 6px 0 14px; }
 
   input{ width: min(240px, 74vw); }
-  .key{ height: 40px; border-radius: 12px; font-size: 14px; }
+
+  /* tighter keyboard on small screens */
+  .kbd{ gap: 6px; max-width: 100%; }
+  .kbdRow{ gap: 4px; }
+  .key{
+    height: 40px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+  .key.wide{ flex: 1.6; } /* GO + ⌫ */
 }
 </style>
 </head>
@@ -197,7 +244,7 @@ button{
 
     <div id="msg" class="msg"></div>
 
-    <!-- ✅ Keyboard is static HTML -->
+    <!-- Keyboard (static HTML) -->
     <div id="kbd" class="kbd" aria-label="Keyboard">
       <div class="kbdRow">
         <button class="key" data-key="Q" type="button">Q</button>
@@ -298,6 +345,11 @@ document.addEventListener("keydown", (e)=>{
 function sanitize(s){
   return (s || "").toUpperCase().replace(/[^A-Z]/g,"").slice(0, WORD_LEN);
 }
+
+/* ✅ Prevents double letters on mobile: we sanitize on native input */
+inputEl.addEventListener("input", () => {
+  inputEl.value = sanitize(inputEl.value);
+});
 
 function buildBoard(){
   boardEl.innerHTML = "";
@@ -439,10 +491,7 @@ document.getElementById("kbd").addEventListener("click", (e)=>{
     }
   }
 });
-/* ✅ Native input handling (prevents double letters on mobile) */
-inputEl.addEventListener("input", () => {
-  inputEl.value = sanitize(inputEl.value);
-});
+
 /* init */
 buildBoard();
 inputEl.focus();
