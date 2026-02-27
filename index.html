@@ -439,16 +439,10 @@ document.getElementById("kbd").addEventListener("click", (e)=>{
     }
   }
 });
-
-/* ✅ Physical keyboard: only Enter submits (prevents double letters on mobile) */
-document.addEventListener("keydown", (e)=>{
-  if(finished) return;
-  if(e.key === "Enter"){
-    e.preventDefault();
-    submit();
-  }
+/* ✅ Native input handling (prevents double letters on mobile) */
+inputEl.addEventListener("input", () => {
+  inputEl.value = sanitize(inputEl.value);
 });
-
 /* init */
 buildBoard();
 inputEl.focus();
